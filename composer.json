@@ -1,0 +1,26 @@
+{
+    "name": "hmp/kuma-extra-bundle",
+    "type": "symfony-bundle",
+    "description": "Additional features for KuntsmaanBundles CMS",
+    "keywords": [ "kunstmaan", "cms", "utilities"],
+    "homepage": "https://github.com/henrypenny/KumaExtraBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "henrypenny",
+            "email": "henrypenny@hotmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": { "hmp\\kuma-extra-bundle\\": "" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
