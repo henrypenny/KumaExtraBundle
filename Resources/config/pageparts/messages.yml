@@ -1,0 +1,4 @@
+name: Copy
+context: messages
+types:
+    - { name: Message, class: Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart }
