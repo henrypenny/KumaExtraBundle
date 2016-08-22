@@ -11,7 +11,11 @@ namespace Hmp\KumaExtraBundle\Twig;
 use Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart;
 use Hmp\KumaExtraBundle\Twig\BaseTwigExtension;
 use Kunstmaan\NodeBundle\Entity\AbstractPage;
+use Kunstmaan\NodeBundle\Entity\NodeTranslation;
+use Kunstmaan\NodeBundle\Router\SlugRouter;
 use Kunstmaan\PagePartBundle\Twig\Extension\PagePartTwigExtension;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Stringy\StaticStringy as S;
 
@@ -74,9 +78,10 @@ class ContentTwigExtension extends BaseTwigExtension
      * @return bool
      * @throws \Twig_Error
      */
-    public function hasContent($context, $id)
+    public function hasContent($context, $id, $pathOverride = null)
     {
-        $page = $this->getPageFromContext($context, 'get_content');
+        $page = $this->getPage($context, $pathOverride);
+
         $messageMap = $this->getMessageMap($page);
 
         /** @var MessagePagePart $message */
@@ -102,9 +107,9 @@ class ContentTwigExtension extends BaseTwigExtension
      *
      * Note: this function is not safe to use with user supplied content.
      */
-    public function getContent($context, $id)
+    public function getContent($context, $id, $pathOverride = null)
     {
-        $page = $this->getPageFromContext($context, 'get_content');
+        $page = $this->getPage($context, $pathOverride);
 
         $messageMap = $this->getMessageMap($page);
 
@@ -142,6 +147,16 @@ class ContentTwigExtension extends BaseTwigExtension
 
         return $content;
     }
+    public function getPage($context, $pathOverride = null)
+    {
+        if ($pathOverride) {
+            $nt = $this->getNodeTranslationForCurrentUrl($pathOverride);
+            $page = $nt->getPublicNodeVersion()->getRef($this->container->get('doctrine.orm.entity_manager'));
+        } else {
+            $page = $this->getPageFromContext($context, 'get_content');
+        }
+        return $page;
+    }
 
     /**
      * @param array $context
@@ -158,5 +173,33 @@ class ContentTwigExtension extends BaseTwigExtension
         /** @var AbstractPage $page */
         $page = $context['page'];
         return $page;
+    }
+
+    /**
+     * @param $pathInfo
+     * @return NodeTranslation
+     * @throws ResourceNotFoundException
+     */
+    public function getNodeTranslationForCurrentUrl($pathInfo)
+    {
+        if($pathInfo instanceof Request) {
+            $pathInfo = $pathInfo->getPathInfo();
+        }
+
+        if($pathInfo != '/') {
+            $pathInfo = rtrim($pathInfo, '/');
+        }
+
+        $router = new SlugRouter($this->container);
+        try {
+            $result = $router->match($pathInfo);
+        }
+        catch (ResourceNotFoundException $e) {
+            throw new ResourceNotFoundException(__CLASS__ . '::' . __FUNCTION__ . ' (get_node_translation_for_current_url), could not find nodeTranslation for path: ' . $pathInfo, 0, $e);
+        }
+        /** @var NodeTranslation $nt */
+        $nt = $result['_nodeTranslation'];
+
+        return $nt;
     }
 }
