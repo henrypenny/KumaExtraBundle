@@ -1,5 +1,6 @@
 services:
     hmp_kuma_extra.twig.content_twig_extension:
+
         class: Hmp\KumaExtraBundle\Twig\ContentTwigExtension
         arguments: ["@service_container", "@doctrine.orm.entity_manager"]
         tags:
@@ -10,3 +11,4 @@ services:
         arguments: ['@service_container', '@doctrine.orm.entity_manager']
         tags:
             - { name: twig.extension }
+

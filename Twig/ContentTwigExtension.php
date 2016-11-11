@@ -11,11 +11,13 @@ namespace Hmp\KumaExtraBundle\Twig;
 use Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart;
 use Hmp\KumaExtraBundle\Twig\BaseTwigExtension;
 use Kunstmaan\NodeBundle\Entity\AbstractPage;
+
 use Kunstmaan\NodeBundle\Entity\NodeTranslation;
 use Kunstmaan\NodeBundle\Router\SlugRouter;
 use Kunstmaan\PagePartBundle\Twig\Extension\PagePartTwigExtension;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Stringy\StaticStringy as S;
 
@@ -107,6 +109,7 @@ class ContentTwigExtension extends BaseTwigExtension
      *
      * Note: this function is not safe to use with user supplied content.
      */
+
     public function getContent($context, $id, $pathOverride = null)
     {
         $page = $this->getPage($context, $pathOverride);
@@ -147,6 +150,7 @@ class ContentTwigExtension extends BaseTwigExtension
 
         return $content;
     }
+
     public function getPage($context, $pathOverride = null)
     {
         if ($pathOverride) {
