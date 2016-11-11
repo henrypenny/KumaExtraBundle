@@ -5,22 +5,17 @@
  * Date: 18/02/15
  * Time: 9:04 AM
  */
-
 namespace Hmp\KumaExtraBundle\Twig;
-
 use Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart;
 use Hmp\KumaExtraBundle\Twig\BaseTwigExtension;
 use Kunstmaan\NodeBundle\Entity\AbstractPage;
-
 use Kunstmaan\NodeBundle\Entity\NodeTranslation;
 use Kunstmaan\NodeBundle\Router\SlugRouter;
 use Kunstmaan\PagePartBundle\Twig\Extension\PagePartTwigExtension;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Stringy\StaticStringy as S;
-
 /**
  * Class ContentService
  * @package App\Bundle\Services
@@ -31,17 +26,14 @@ class ContentTwigExtension extends BaseTwigExtension
     {
         return 'contentService';
     }
-
     public function getName()
     {
         return 'hmp_content_twig_extension';
     }
-
     function getFilters() {
         return [
         ];
     }
-
     function getFunctions()
     {
         return array (
@@ -49,20 +41,15 @@ class ContentTwigExtension extends BaseTwigExtension
             'get_content' => new \Twig_SimpleFunction('get_content', array($this, 'getContent'), array('needs_context' => true, 'is_safe' => array('all'))),
         );
     }
-
     protected $messageMap = [];
-
     public function getMessageMap(AbstractPage $page)
     {
         $messageHash = md5(get_class($page) . $page->getId());
         if(!isset($this->messageMap[$messageHash])) {
-
             $ppx = new PagePartTwigExtension($this->em);
             /** @var MessagePagePart[] $pageParts */
             $pageParts = $ppx->getPageParts($page, 'messages');
-
             $ppMap = [];
-
             foreach ($pageParts as $pagePart) {
                 $ppMap[$pagePart->getMessageId()] = $pagePart;
             }
@@ -73,7 +60,6 @@ class ContentTwigExtension extends BaseTwigExtension
         }
         return $ppMap;
     }
-
     /**
      * @param $context
      * @param $id
@@ -83,12 +69,9 @@ class ContentTwigExtension extends BaseTwigExtension
     public function hasContent($context, $id, $pathOverride = null)
     {
         $page = $this->getPage($context, $pathOverride);
-
         $messageMap = $this->getMessageMap($page);
-
         /** @var MessagePagePart $message */
         $message = null;
-
         if(isset($messageMap[$id])) {
             $message = $messageMap[$id];
         }
@@ -100,7 +83,6 @@ class ContentTwigExtension extends BaseTwigExtension
         }
         return true;
     }
-
     /**
      * @param $context
      * @param $id
@@ -109,16 +91,12 @@ class ContentTwigExtension extends BaseTwigExtension
      *
      * Note: this function is not safe to use with user supplied content.
      */
-
     public function getContent($context, $id, $pathOverride = null)
     {
         $page = $this->getPage($context, $pathOverride);
-
         $messageMap = $this->getMessageMap($page);
-
         /** @var MessagePagePart $message */
         $message = null;
-
         if(isset($messageMap[$id])) {
             $message = $messageMap[$id];
         }
@@ -130,27 +108,20 @@ class ContentTwigExtension extends BaseTwigExtension
         }
         return $message->getMessage();
     }
-
     public function post($slug, $name = null, $content = null)
     {
         $content = new Content();
         $content
             ->setSlug($slug)
             ->setLabel(S::humanize($slug));
-
         $this->em->persist($content);
         $this->em->flush();
-
         $editLink = $this->router->generate('app_admin_content_edit', ['id' => $content->getId()]);
-
         $content->setContent('New content! You can edit me <a href="' . $editLink . '">here</a>');
-
         $this->em->persist($content);
         $this->em->flush();
-
         return $content;
     }
-
     public function getPage($context, $pathOverride = null)
     {
         if ($pathOverride) {
@@ -161,7 +132,6 @@ class ContentTwigExtension extends BaseTwigExtension
         }
         return $page;
     }
-
     /**
      * @param array $context
      * @return AbstractPage
@@ -178,7 +148,6 @@ class ContentTwigExtension extends BaseTwigExtension
         $page = $context['page'];
         return $page;
     }
-
     /**
      * @param $pathInfo
      * @return NodeTranslation
@@ -189,11 +158,9 @@ class ContentTwigExtension extends BaseTwigExtension
         if($pathInfo instanceof Request) {
             $pathInfo = $pathInfo->getPathInfo();
         }
-
         if($pathInfo != '/') {
             $pathInfo = rtrim($pathInfo, '/');
         }
-
         $router = new SlugRouter($this->container);
         try {
             $result = $router->match($pathInfo);
@@ -203,7 +170,6 @@ class ContentTwigExtension extends BaseTwigExtension
         }
         /** @var NodeTranslation $nt */
         $nt = $result['_nodeTranslation'];
-
         return $nt;
     }
 }
