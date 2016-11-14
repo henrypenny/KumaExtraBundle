@@ -1,0 +1,14 @@
+services:
+    hmp_kuma_extra.twig.content_twig_extension:
+
+        class: Hmp\KumaExtraBundle\Twig\ContentTwigExtension
+        arguments: ["@service_container", "@doctrine.orm.entity_manager"]
+        tags:
+            - { name: twig.extension }
+
+    hmp_kuma_extra.twig.form_twig_extension:
+        class: Hmp\KumaExtraBundle\Twig\FormTwigExtension
+        arguments: ['@service_container', '@doctrine.orm.entity_manager']
+        tags:
+            - { name: twig.extension }
+
