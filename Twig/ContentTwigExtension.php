@@ -55,6 +55,7 @@ class ContentTwigExtension extends BaseTwigExtension
         $messageHash = md5(get_class($page) . $page->getId());
         if(!isset($this->messageMap[$messageHash])) {
 
+
             $ppx = new PagePartTwigExtension($this->em);
             /** @var MessagePagePart[] $pageParts */
             $pageParts = $ppx->getPageParts($page, 'messages');
@@ -81,6 +82,7 @@ class ContentTwigExtension extends BaseTwigExtension
     public function hasContent($context, $id, $pathOverride = null)
     {
         $page = $this->getPage($context, $pathOverride);
+
 
         $messageMap = $this->getMessageMap($page);
 
@@ -128,25 +130,6 @@ class ContentTwigExtension extends BaseTwigExtension
         return $message->getMessage();
     }
 
-    public function post($slug, $name = null, $content = null)
-    {
-        $content = new Content();
-        $content
-            ->setSlug($slug)
-            ->setLabel(S::humanize($slug));
-
-        $this->em->persist($content);
-        $this->em->flush();
-
-        $editLink = $this->router->generate('app_admin_content_edit', ['id' => $content->getId()]);
-
-        $content->setContent('New content! You can edit me <a href="' . $editLink . '">here</a>');
-
-        $this->em->persist($content);
-        $this->em->flush();
-
-        return $content;
-    }
     public function getPage($context, $pathOverride = null)
     {
         if ($pathOverride) {
@@ -199,7 +182,6 @@ class ContentTwigExtension extends BaseTwigExtension
         }
         /** @var NodeTranslation $nt */
         $nt = $result['_nodeTranslation'];
-
         return $nt;
     }
 }
