@@ -1,0 +1,22 @@
+parameters:
+#    form.resolved_type_factory.class: Hmp\KumaExtraBundle\Form\ResolvedFormTypeFactory
+
+services:
+    app.container_aware_type:
+        class: Hmp\KumaExtraBundle\Form\Type\ContainerAwareType
+        calls:
+          - [setContainer, ['@service_container']]
+        tags:
+            - { name: form.type, alias: 'container_aware' }
+
+    app.filterable_entity:
+        class: Hmp\KumaExtraBundle\Form\Type\FilterableEntityType
+        arguments: ['@doctrine']
+        tags:
+            - { name: form.type, alias: 'filterable_entity' }
+
+    app.entity_hidden_type:
+        class: Hmp\KumaExtraBundle\Form\Type\EntityHiddenType
+        arguments: ["@doctrine.orm.entity_manager"]
+        tags:
+            - { name: form.type, alias: entity_hidden }
