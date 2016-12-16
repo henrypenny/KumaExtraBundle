@@ -5,7 +5,9 @@
  * Date: 18/02/15
  * Time: 9:04 AM
  */
+
 namespace Hmp\KumaExtraBundle\Twig;
+
 use Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart;
 use Hmp\KumaExtraBundle\Twig\BaseTwigExtension;
 use Kunstmaan\NodeBundle\Entity\AbstractPage;
@@ -16,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Stringy\StaticStringy as S;
+
 /**
  * Class ContentService
  * @package App\Bundle\Services
@@ -26,14 +29,17 @@ class ContentTwigExtension extends BaseTwigExtension
     {
         return 'contentService';
     }
+
     public function getName()
     {
         return 'hmp_content_twig_extension';
     }
+
     function getFilters() {
         return [
         ];
     }
+
     function getFunctions()
     {
         return array (
@@ -41,15 +47,20 @@ class ContentTwigExtension extends BaseTwigExtension
             'get_content' => new \Twig_SimpleFunction('get_content', array($this, 'getContent'), array('needs_context' => true, 'is_safe' => array('all'))),
         );
     }
+
     protected $messageMap = [];
+
     public function getMessageMap(AbstractPage $page)
     {
         $messageHash = md5(get_class($page) . $page->getId());
         if(!isset($this->messageMap[$messageHash])) {
+
             $ppx = new PagePartTwigExtension($this->em);
             /** @var MessagePagePart[] $pageParts */
             $pageParts = $ppx->getPageParts($page, 'messages');
+
             $ppMap = [];
+
             foreach ($pageParts as $pagePart) {
                 $ppMap[$pagePart->getMessageId()] = $pagePart;
             }
@@ -60,6 +71,7 @@ class ContentTwigExtension extends BaseTwigExtension
         }
         return $ppMap;
     }
+
     /**
      * @param $context
      * @param $id
@@ -69,6 +81,7 @@ class ContentTwigExtension extends BaseTwigExtension
     public function hasContent($context, $id, $pathOverride = null)
     {
         $page = $this->getPage($context, $pathOverride);
+
         $messageMap = $this->getMessageMap($page);
         /** @var MessagePagePart $message */
         $message = null;
