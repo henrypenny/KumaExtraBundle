@@ -45,6 +45,7 @@ class ContentTwigExtension extends BaseTwigExtension
         return array (
             'has_content' => new \Twig_SimpleFunction('has_content', array($this, 'hasContent'), array('needs_context' => true)),
             'get_content' => new \Twig_SimpleFunction('get_content', array($this, 'getContent'), array('needs_context' => true, 'is_safe' => array('all'))),
+            'get_page_by_url' => new \Twig_SimpleFunction('get_page_by_url', array($this, 'getPageByUrl'), array('needs_context' => true, 'is_safe' => array('all'))),
         );
     }
 
@@ -135,6 +136,7 @@ class ContentTwigExtension extends BaseTwigExtension
         $this->em->flush();
         return $content;
     }
+    
     public function getPage($context, $pathOverride = null)
     {
         if ($pathOverride) {
@@ -145,6 +147,18 @@ class ContentTwigExtension extends BaseTwigExtension
         }
         return $page;
     }
+    
+    /**
+     * @param $context
+     * @param $path
+     * @return AbstractPage|\Kunstmaan\NodeBundle\Entity\HasNodeInterface
+     */
+    public function getPageByUrl($context, $path)
+    {
+        $page = $this->getPage($context, $path);
+        return $page;
+    }
+    
     /**
      * @param array $context
      * @return AbstractPage
