@@ -32,7 +32,6 @@ class ControllerPageType extends PageAdminType
         $builder->add('controllerAction', 'text', array(
             'required' => false,
             'attr' => array('style' => 'font-family: monospace; font-weight: bold; color: #77ff77; background-color: black;'))
-
         );
     }
 }
