@@ -140,8 +140,13 @@ class ContentTwigExtension extends BaseTwigExtension
     public function getPage($context, $pathOverride = null)
     {
         if ($pathOverride) {
-            $nt = $this->getNodeTranslationForCurrentUrl($pathOverride);
-            $page = $nt->getPublicNodeVersion()->getRef($this->container->get('doctrine.orm.entity_manager'));
+            try {
+                $nt = $this->getNodeTranslationForCurrentUrl($pathOverride);
+                $page = $nt->getPublicNodeVersion()->getRef($this->container->get('doctrine.orm.entity_manager'));
+            }
+            catch(\Exception $e) {
+                return null;
+            }
         } else {
             $page = $this->getPageFromContext($context, 'get_content');
         }

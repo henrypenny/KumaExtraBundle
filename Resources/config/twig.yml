@@ -12,3 +12,8 @@ services:
         tags:
             - { name: twig.extension }
 
+    hmp_kuma_extra.twig.form_type_extension:
+        class: Hmp\KumaExtraBundle\Form\Extensions\ExtraArgsTypeExtension
+        tags:
+          - { name: form.type_extension, alias: form, extended_type: Symfony\Component\Form\Extension\Core\Type\FormType }
+
