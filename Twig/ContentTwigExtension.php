@@ -12,6 +12,7 @@ use Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart;
 use Hmp\KumaExtraBundle\Twig\BaseTwigExtension;
 use Kunstmaan\NodeBundle\Entity\AbstractPage;
 use Kunstmaan\NodeBundle\Entity\NodeTranslation;
+use Kunstmaan\NodeBundle\Helper\NodeMenuItem;
 use Kunstmaan\NodeBundle\Router\SlugRouter;
 use Kunstmaan\PagePartBundle\Twig\Extension\PagePartTwigExtension;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,8 +46,31 @@ class ContentTwigExtension extends BaseTwigExtension
         return array (
             'has_content' => new \Twig_SimpleFunction('has_content', array($this, 'hasContent'), array('needs_context' => true)),
             'get_content' => new \Twig_SimpleFunction('get_content', array($this, 'getContent'), array('needs_context' => true, 'is_safe' => array('all'))),
+            'get_page' => new \Twig_SimpleFunction('get_page', array($this, 'getPage')),
             'get_page_by_url' => new \Twig_SimpleFunction('get_page_by_url', array($this, 'getPageByUrl'), array('needs_context' => true, 'is_safe' => array('all'))),
         );
+    }
+
+    public function getPage($object)
+    {
+        if($object instanceof AbstractPage) {
+            return $object;
+        }
+        else if($object instanceof Node) {
+            return $object->getNodeTranslation('en', true)->getPublicNodeVersion()->getRef($this->em);
+        }
+        else if($object instanceof NodeTranslation) {
+            return $object->getPublicNodeVersion()->getRef($this->em);
+        }
+        else if($object instanceof NodeVersion) {
+            return $object->getRef($this->em);
+        }
+        else if($object instanceof NodeMenuItem) {
+            return $object->getPage();
+        }
+        else {
+            throw new \Exception('Argument is not instance of Node, NodeTranslation or NodeVersion. Argument instance of ' . get_class($object));
+        }
     }
 
     protected $messageMap = [];
@@ -81,7 +105,7 @@ class ContentTwigExtension extends BaseTwigExtension
      */
     public function hasContent($context, $id, $pathOverride = null)
     {
-        $page = $this->getPage($context, $pathOverride);
+        $page = $this->getCurrentPage($context, $pathOverride);
 
         $messageMap = $this->getMessageMap($page);
         /** @var MessagePagePart $message */
@@ -107,7 +131,7 @@ class ContentTwigExtension extends BaseTwigExtension
      */
     public function getContent($context, $id, $pathOverride = null)
     {
-        $page = $this->getPage($context, $pathOverride);
+        $page = $this->getCurrentPage($context, $pathOverride);
         $messageMap = $this->getMessageMap($page);
         /** @var MessagePagePart $message */
         $message = null;
@@ -137,7 +161,7 @@ class ContentTwigExtension extends BaseTwigExtension
         return $content;
     }
     
-    public function getPage($context, $pathOverride = null)
+    public function getCurrentPage($context, $pathOverride = null)
     {
         if ($pathOverride) {
             try {
@@ -160,7 +184,7 @@ class ContentTwigExtension extends BaseTwigExtension
      */
     public function getPageByUrl($context, $path)
     {
-        $page = $this->getPage($context, $path);
+        $page = $this->getCurrentPage($context, $path);
         return $page;
     }
     
