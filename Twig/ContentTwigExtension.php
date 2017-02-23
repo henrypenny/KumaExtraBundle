@@ -38,6 +38,7 @@ class ContentTwigExtension extends BaseTwigExtension
 
     function getFilters() {
         return [
+            new \Twig_SimpleFilter('shortTags', [$this, 'shortTags'])
         ];
     }
 
@@ -48,6 +49,10 @@ class ContentTwigExtension extends BaseTwigExtension
             'get_content' => new \Twig_SimpleFunction('get_content', array($this, 'getContent'), array('needs_context' => true, 'is_safe' => array('all'))),
             'get_page' => new \Twig_SimpleFunction('get_page', array($this, 'getPage')),
             'get_page_by_url' => new \Twig_SimpleFunction('get_page_by_url', array($this, 'getPageByUrl'), array('needs_context' => true, 'is_safe' => array('all'))),
+            'alt' => new \Twig_SimpleFunction('alt', array($this, 'alt'), array('needs_environment' => true, 'is_safe' => array('all'))),
+            'stash' => new \Twig_Function_Method($this, 'stash', ['needs_context' => true, 'needs_environment' => true]),
+            'isLastPP' => new \Twig_Function_Method($this, 'isLastPP', ['needs_context' => true]),
+            'shortTags' => new \Twig_Function_Method($this, 'shortTags', ['needs_context' => true]),
         );
     }
 
@@ -228,4 +233,96 @@ class ContentTwigExtension extends BaseTwigExtension
         $nt = $result['_nodeTranslation'];
         return $nt;
     }
+
+
+    /**
+     * @param $context
+     * @param $values
+     * @return mixed
+     */
+    public function alt(\Twig_Environment $env, array $values)
+    {
+        if(!count($values)) {
+            throw new \Exception('$values argument is empty, requires array of strings');
+        }
+        $key = '_alt_'. hash("md5", implode('|', $values));
+
+        $app = $env->getGlobals()['app'];
+
+        /** @var \Iterator $generator */
+        if(!$app->getRequest()->attributes->has($key)) {
+            $generator = function() use ($values) {
+                $index = 0;
+                while(true) {
+                    if ($index < count($values)) {
+                        $yield = $values[$index];
+                        $index++;
+                    } else {
+                        $index = 0;
+                        $yield = $values[$index];
+                        $index = 1;
+                    }
+                    yield $yield;
+                }
+            };
+
+            $app->getRequest()->attributes->set($key, $generator());
+        }
+        $generator = $app->getRequest()->attributes->get($key);
+        $res = $generator->current();
+        $generator->next();
+        return $res;
+    }
+
+
+    public function stash(\Twig_Environment $env, $ctx, $id, $value = null)
+    {
+        /** @var AppVariable $app */
+        $app = $env->getGlobals()['app'];
+        if($value != null) {
+            $app->getRequest()->attributes->add([$id => $value]);
+            return '';
+        }
+        else {
+            $value = $app->getRequest()->attributes->get($id);
+        }
+        return $value;
+    }
+
+    public function isLastPP($ctx)
+    {
+        if(!isset($ctx['page']) || !isset($ctx['pageparts']) || !isset($ctx['resource'])) {
+            throw new \Exception('Not in page part template');
+        }
+
+        /** @var AbstractPagePart[] $pageparts */
+        $pageparts = $ctx['pageparts'];
+        /** @var AbstractPagePart $page */
+        $pagepart = $ctx['resource'];
+
+        if(end($pageparts) == $pagepart) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public function shortTags($text, $tag, $start, $end)
+    {
+        $text = str_replace('{' . $tag . '}', $start, $text);
+        $text = str_replace('{/' . $tag . '}', $end, $text);
+        return $text;
+    }
+
+}
+
+class GeneratorHolder {
+
+    public function __construct($gen)
+    {
+        $this->gen = $gen;
+    }
+
+    public $gen;
 }
