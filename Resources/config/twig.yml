@@ -2,7 +2,7 @@ services:
     hmp_kuma_extra.twig.content_twig_extension:
 
         class: Hmp\KumaExtraBundle\Twig\ContentTwigExtension
-        arguments: ["@service_container", "@doctrine.orm.entity_manager"]
+        arguments: ["@service_container", "@doctrine.orm.entity_manager", "@liip_imagine.cache.manager"]
         tags:
             - { name: twig.extension }
 

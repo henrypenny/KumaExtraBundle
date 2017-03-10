@@ -8,13 +8,17 @@
 
 namespace Hmp\KumaExtraBundle\Twig;
 
+use Doctrine\ORM\EntityManager;
 use Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart;
 use Hmp\KumaExtraBundle\Twig\BaseTwigExtension;
 use Kunstmaan\NodeBundle\Entity\AbstractPage;
+use Kunstmaan\NodeBundle\Entity\Node;
 use Kunstmaan\NodeBundle\Entity\NodeTranslation;
 use Kunstmaan\NodeBundle\Helper\NodeMenuItem;
 use Kunstmaan\NodeBundle\Router\SlugRouter;
 use Kunstmaan\PagePartBundle\Twig\Extension\PagePartTwigExtension;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGenerator;
@@ -36,8 +40,16 @@ class ContentTwigExtension extends BaseTwigExtension
         return 'hmp_content_twig_extension';
     }
 
+
+    public function __construct(ContainerInterface $container, EntityManager $em, CacheManager $cm)
+    {
+        parent::__construct($container, $em);
+        $this->cacheManager = $cm;
+    }
+
     function getFilters() {
         return [
+            new \Twig_SimpleFilter('img', [$this, 'img'], array()),
             new \Twig_SimpleFilter('shortTags', [$this, 'shortTags'])
         ];
     }
@@ -150,20 +162,6 @@ class ContentTwigExtension extends BaseTwigExtension
             return 'Please add a message for message with messageId = \'' . $id . '\' on page: ' . $page->getTitle();
         }
         return $message->getMessage();
-    }
-    public function post($slug, $name = null, $content = null)
-    {
-        $content = new Content();
-        $content
-            ->setSlug($slug)
-            ->setLabel(S::humanize($slug));
-        $this->em->persist($content);
-        $this->em->flush();
-        $editLink = $this->router->generate('app_admin_content_edit', ['id' => $content->getId()]);
-        $content->setContent('New content! You can edit me <a href="' . $editLink . '">here</a>');
-        $this->em->persist($content);
-        $this->em->flush();
-        return $content;
     }
     
     public function getCurrentPage($context, $pathOverride = null)
@@ -313,6 +311,43 @@ class ContentTwigExtension extends BaseTwigExtension
         $text = str_replace('{' . $tag . '}', $start, $text);
         $text = str_replace('{/' . $tag . '}', $end, $text);
         return $text;
+    }
+
+    public function img($media, $width = null, $height = null, $mode = 'outbound', $allow_upscale = false)
+    {
+        if($media === null) {
+            return sprintf("https://placehold.it/%sx%s", $width, $height);
+        }
+
+        if (is_string($media)) {
+            $path = $media;
+        }
+        else if($media instanceof Media || method_exists($media, 'getUrl')) {
+            $path = $media->getUrl();
+        }
+        else {
+            throw new \Exception('invalid argument ' . $media);
+        }
+
+        $thumbnail = [];
+
+        if($width || $height) {
+
+            $width = $width?$width:$height;
+            $height = $height?$height:$width;
+
+            $thumbnail = array_merge($thumbnail, ['size' => [$width, $height]]);
+        }
+
+        if($mode) {
+            $thumbnail = array_merge($thumbnail, compact('mode'));
+        }
+
+        if($allow_upscale) {
+            $thumbnail = array_merge($thumbnail, compact('allow_upscale'));
+        }
+
+        return $this->cacheManager->getBrowserPath($path, 'img', compact('thumbnail'));
     }
 
 }
