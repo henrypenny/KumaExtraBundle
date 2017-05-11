@@ -6,7 +6,7 @@
  * Time: 12:00 PM
  */
 
-namespace Supply\CampaignBundle\Form\DataTransformer;
+namespace Hmp\KumaExtraBundle\Form\DataTransformer;
 
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
