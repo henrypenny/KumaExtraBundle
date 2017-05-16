@@ -1,1 +1,6 @@
 services:
+
+    hmp_kuma_extra.entity.load.listener:
+        class: Hmp\KumaExtraBundle\EventListener\EntityLoadListener
+        tags:
+            - { name: doctrine.event_listener, event: postLoad }

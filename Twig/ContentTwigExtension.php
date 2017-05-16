@@ -11,13 +11,16 @@ namespace Hmp\KumaExtraBundle\Twig;
 use Doctrine\ORM\EntityManager;
 use Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart;
 use Hmp\KumaExtraBundle\Twig\BaseTwigExtension;
+use Kunstmaan\MediaBundle\Entity\Media;
 use Kunstmaan\NodeBundle\Entity\AbstractPage;
 use Kunstmaan\NodeBundle\Entity\Node;
 use Kunstmaan\NodeBundle\Entity\NodeTranslation;
+use Kunstmaan\NodeBundle\Entity\NodeVersion;
 use Kunstmaan\NodeBundle\Helper\NodeMenuItem;
 use Kunstmaan\NodeBundle\Router\SlugRouter;
 use Kunstmaan\PagePartBundle\Twig\Extension\PagePartTwigExtension;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -316,7 +319,7 @@ class ContentTwigExtension extends BaseTwigExtension
     public function img($media, $width = null, $height = null, $mode = 'outbound', $allow_upscale = false)
     {
         if($media === null) {
-            return sprintf("https://placehold.it/%sx%s", $width, $height);
+            return sprintf("//unsplash.it/%sx%s", $width, $height);
         }
 
         if (is_string($media)) {
