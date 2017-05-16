@@ -27,10 +27,7 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Stringy\StaticStringy as S;
 
-/**
- * Class ContentService
- * @package App\Bundle\Services
- */
+
 class ContentTwigExtension extends BaseTwigExtension
 {
     function getServiceName()

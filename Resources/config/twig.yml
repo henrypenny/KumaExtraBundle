@@ -17,3 +17,9 @@ services:
         tags:
           - { name: form.type_extension, alias: form, extended_type: Symfony\Component\Form\Extension\Core\Type\FormType }
 
+    hmp_kuma_extra.twig.util_twig_extension:
+
+        class: Hmp\KumaExtraBundle\Twig\UtilTwigExtension
+        arguments: ["@service_container", "@doctrine.orm.entity_manager", "@liip_imagine.cache.manager"]
+        tags:
+            - { name: twig.extension }
