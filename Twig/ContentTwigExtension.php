@@ -313,10 +313,27 @@ class ContentTwigExtension extends BaseTwigExtension
         return $text;
     }
 
+    /**
+     * @param Media $media
+     * @param null $width
+     * @param null $height
+     * @param string $mode
+     * @param bool $allow_upscale
+     * @return string
+     * @throws \Exception
+     */
     public function img($media, $width = null, $height = null, $mode = 'outbound', $allow_upscale = false)
     {
         if($media === null) {
             return sprintf("//unsplash.it/%sx%s", $width, $height);
+        }
+
+        $passThroughTypes = [
+            'image/gif'
+        ];
+
+        if(in_array($media->getContentType(), $passThroughTypes)) {
+            return $media->getUrl();
         }
 
         if (is_string($media)) {
