@@ -50,6 +50,7 @@ class ContentTwigExtension extends BaseTwigExtension
     function getFilters() {
         return [
             new \Twig_SimpleFilter('img', [$this, 'img'], array()),
+            new \Twig_SimpleFilter('is_video', [$this, 'isVideo'], array()),
             new \Twig_SimpleFilter('shortTags', [$this, 'shortTags'])
         ];
     }
@@ -367,6 +368,16 @@ class ContentTwigExtension extends BaseTwigExtension
         return $this->cacheManager->getBrowserPath($path, 'img', compact('thumbnail'));
     }
 
+    public function isVideo(Media $media)
+    {
+        $videoTypes = [
+            'video/mp4'
+        ];
+
+        $result = in_array($media->getContentType(), $videoTypes);
+
+        return $result;
+    }
 }
 
 class GeneratorHolder {
