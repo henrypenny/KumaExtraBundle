@@ -9,6 +9,7 @@
 namespace Hmp\KumaExtraBundle\Twig;
 
 use Doctrine\ORM\EntityManager;
+use Hmp\KumaExtraBundle\Entity\PageParts\AbstractPagePart;
 use Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart;
 use Hmp\KumaExtraBundle\Twig\BaseTwigExtension;
 use Kunstmaan\MediaBundle\Entity\Media;
@@ -47,10 +48,18 @@ class ContentTwigExtension extends BaseTwigExtension
         $this->cacheManager = $cm;
     }
 
+    function getTests()
+    {
+        return [
+            new \Twig_SimpleTest('video', function (Media $media) { return $this->isMediaOfType($media, ['video/mp4']); }),
+            new \Twig_SimpleTest('remote_video', function (Media $media) { return $this->isMediaOfType($media, ['remote/video']); }),
+            new \Twig_SimpleTest('resizable', function (Media $media) { return $this->isMediaOfType($media, ['image/jpeg', 'image/png']); }),
+        ];
+    }
+
     function getFilters() {
         return [
             new \Twig_SimpleFilter('img', [$this, 'img'], array()),
-            new \Twig_SimpleFilter('is_video', [$this, 'isVideo'], array()),
             new \Twig_SimpleFilter('shortTags', [$this, 'shortTags'])
         ];
     }
@@ -333,7 +342,7 @@ class ContentTwigExtension extends BaseTwigExtension
             'image/gif'
         ];
 
-        if(in_array($media->getContentType(), $passThroughTypes)) {
+        if($this->isMediaOfType($media, ['image/gif', 'image/svg+xml'])) {
             return $media->getUrl();
         }
 
@@ -368,13 +377,9 @@ class ContentTwigExtension extends BaseTwigExtension
         return $this->cacheManager->getBrowserPath($path, 'img', compact('thumbnail'));
     }
 
-    public function isVideo(Media $media)
+    private function isMediaOfType(Media $media, $types)
     {
-        $videoTypes = [
-            'video/mp4'
-        ];
-
-        $result = in_array($media->getContentType(), $videoTypes);
+        $result = in_array($media->getContentType(), $types);
 
         return $result;
     }
