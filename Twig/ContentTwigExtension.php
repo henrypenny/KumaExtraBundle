@@ -62,6 +62,7 @@ class ContentTwigExtension extends BaseTwigExtension
             new \Twig_SimpleFilter('img', [$this, 'img'], array()),
             new \Twig_SimpleFilter('shortTags', [$this, 'shortTags']),
             new \Twig_SimpleFilter('nl2p', [$this, 'nl2p'], ['is_safe' => ['all']]),
+            new \Twig_SimpleFilter('atarget', [$this, 'atarget'], ['is_safe' => ['all']]),
         ];
     }
 
@@ -382,6 +383,16 @@ class ContentTwigExtension extends BaseTwigExtension
     {
         $result = str_replace("\n", "</p>\n<p>", $content);
         return $result;
+    }
+
+    public function atarget($showTarget)
+    {
+        if($showTarget) {
+            return ' target="_blank" ';
+        }
+        else {
+            return '';
+        }
     }
 
     private function isMediaOfType(Media $media, $types)
