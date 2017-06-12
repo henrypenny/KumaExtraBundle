@@ -60,7 +60,8 @@ class ContentTwigExtension extends BaseTwigExtension
     function getFilters() {
         return [
             new \Twig_SimpleFilter('img', [$this, 'img'], array()),
-            new \Twig_SimpleFilter('shortTags', [$this, 'shortTags'])
+            new \Twig_SimpleFilter('shortTags', [$this, 'shortTags']),
+            new \Twig_SimpleFilter('nl2p', [$this, 'nl2p'], ['is_safe' => ['all']]),
         ];
     }
 
@@ -375,6 +376,12 @@ class ContentTwigExtension extends BaseTwigExtension
         }
 
         return $this->cacheManager->getBrowserPath($path, 'img', compact('thumbnail'));
+    }
+
+    public function nl2p($content)
+    {
+        $result = str_replace("\n", "</p>\n<p>", $content);
+        return $result;
     }
 
     private function isMediaOfType(Media $media, $types)
