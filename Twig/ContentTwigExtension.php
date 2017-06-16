@@ -9,6 +9,7 @@
 namespace Hmp\KumaExtraBundle\Twig;
 
 use Doctrine\ORM\EntityManager;
+use Hmp\KumaExtraBundle\Entity\PageParts\AbstractPagePart;
 use Hmp\KumaExtraBundle\Entity\PageParts\MessagePagePart;
 use Hmp\KumaExtraBundle\Twig\BaseTwigExtension;
 use Kunstmaan\MediaBundle\Entity\Media;
@@ -47,10 +48,21 @@ class ContentTwigExtension extends BaseTwigExtension
         $this->cacheManager = $cm;
     }
 
+    function getTests()
+    {
+        return [
+            new \Twig_SimpleTest('video', function (Media $media) { return $this->isMediaOfType($media, ['video/mp4']); }),
+            new \Twig_SimpleTest('remote_video', function (Media $media) { return $this->isMediaOfType($media, ['remote/video']); }),
+            new \Twig_SimpleTest('resizable', function (Media $media) { return $this->isMediaOfType($media, ['image/jpeg', 'image/png']); }),
+        ];
+    }
+
     function getFilters() {
         return [
             new \Twig_SimpleFilter('img', [$this, 'img'], array()),
-            new \Twig_SimpleFilter('shortTags', [$this, 'shortTags'])
+            new \Twig_SimpleFilter('shortTags', [$this, 'shortTags']),
+            new \Twig_SimpleFilter('nl2p', [$this, 'nl2p'], ['is_safe' => ['all']]),
+            new \Twig_SimpleFilter('atarget', [$this, 'atarget'], ['is_safe' => ['all']]),
         ];
     }
 
@@ -313,6 +325,12 @@ class ContentTwigExtension extends BaseTwigExtension
         return $text;
     }
 
+    /**
+     * @param $media
+     * @param null $width
+     * @param null $height
+     * @param array $opts
+     */
     public function img($media, $width = null, $height = null, $opts = [])
     {
         $defaultOptions = [
@@ -334,6 +352,14 @@ class ContentTwigExtension extends BaseTwigExtension
 
         if($media === null) {
             return sprintf("//unsplash.it/%sx%s", $width, $height);
+        }
+
+        $passThroughTypes = [
+            'image/gif'
+        ];
+
+        if($this->isMediaOfType($media, ['image/gif', 'image/svg+xml'])) {
+            return $media->getUrl();
         }
 
         if (is_string($media)) {
@@ -372,6 +398,28 @@ class ContentTwigExtension extends BaseTwigExtension
         }
     }
 
+    public function nl2p($content)
+    {
+        $result = str_replace("\n", "</p>\n<p>", $content);
+        return $result;
+    }
+
+    public function atarget($showTarget)
+    {
+        if($showTarget) {
+            return ' target="_blank" ';
+        }
+        else {
+            return '';
+        }
+    }
+
+    private function isMediaOfType(Media $media, $types)
+    {
+        $result = in_array($media->getContentType(), $types);
+
+        return $result;
+    }
 }
 
 class GeneratorHolder {
