@@ -336,7 +336,7 @@ class ContentTwigExtension extends BaseTwigExtension
         $defaultOptions = [
             'mode' => 'outbound',
             'allow_upscale' => false,
-            'double_size' => true,
+            'double_size' => false,
         ];
 
         $opts = array_merge($defaultOptions, $opts);
@@ -354,11 +354,7 @@ class ContentTwigExtension extends BaseTwigExtension
             return sprintf("//unsplash.it/%sx%s", $width, $height);
         }
 
-        $passThroughTypes = [
-            'image/gif'
-        ];
-
-        if($this->isMediaOfType($media, ['image/gif', 'image/svg+xml'])) {
+        if($this->isMediaOfType($media, ['image/gif', 'image/svg+xml', 'image/png'])) {
             return $media->getUrl();
         }
 
