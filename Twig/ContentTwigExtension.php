@@ -313,8 +313,25 @@ class ContentTwigExtension extends BaseTwigExtension
         return $text;
     }
 
-    public function img($media, $width = null, $height = null, $mode = 'outbound', $allow_upscale = false)
+    public function img($media, $width = null, $height = null, $opts = [])
     {
+        $defaultOptions = [
+            'mode' => 'outbound',
+            'allow_upscale' => false,
+            'double_size' => true,
+        ];
+
+        $opts = array_merge($defaultOptions, $opts);
+
+        $mode = $opts['mode'];
+        $allow_upscale = $opts['allow_upscale'];
+        $double_size = $opts['double_size'];
+
+        if($double_size) {
+            $width *= 2;
+            $height *= 2;
+        }
+
         if($media === null) {
             return sprintf("//unsplash.it/%sx%s", $width, $height);
         }
@@ -347,7 +364,12 @@ class ContentTwigExtension extends BaseTwigExtension
             $thumbnail = array_merge($thumbnail, compact('allow_upscale'));
         }
 
-        return $this->cacheManager->getBrowserPath($path, 'img', compact('thumbnail'));
+        if($double_size) {
+            return $this->cacheManager->getBrowserPath($path, 'img_low', compact('thumbnail'));
+        }
+        else {
+            return $this->cacheManager->getBrowserPath($path, 'img', compact('thumbnail'));
+        }
     }
 
 }
