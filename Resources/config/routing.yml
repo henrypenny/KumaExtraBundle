@@ -1,0 +1,4 @@
+hmp_kuma_globalvalue_admin_list:
+    resource: '@HmpKumaExtraBundle/Controller/GlobalValueAdminListController.php'
+    type:     annotation
+    prefix:   /admin/settings/globalvalue/

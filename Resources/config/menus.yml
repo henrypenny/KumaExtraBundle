@@ -1,0 +1,6 @@
+services:
+    appbundle.app.globalvalues:
+        class: Hmp\KumaExtraBundle\Helper\Menu\GlobalValueMenuAdaptor
+        arguments: ["@security.authorization_checker", "@security.token_storage"]
+        tags:
+            - { name: kunstmaan_admin.menu.adaptor }

@@ -54,6 +54,7 @@ class ContentTwigExtension extends BaseTwigExtension
             new \Twig_SimpleTest('video', function (Media $media) { return $this->isMediaOfType($media, ['video/mp4']); }),
             new \Twig_SimpleTest('remote_video', function (Media $media) { return $this->isMediaOfType($media, ['remote/video']); }),
             new \Twig_SimpleTest('resizable', function (Media $media) { return $this->isMediaOfType($media, ['image/jpeg', 'image/png']); }),
+            new \Twig_SimpleTest('gif', function (Media $media) { return $this->isMediaOfType($media, ['image/gif']); }),
         ];
     }
 
@@ -337,7 +338,7 @@ class ContentTwigExtension extends BaseTwigExtension
     public function img($media, $width = null, $height = null, $mode = 'outbound', $allow_upscale = false)
     {
         if($media === null) {
-            return sprintf("//unsplash.it/%sx%s", $width, $height);
+            return sprintf("//unsplash.it/%s/%s", $width, $height);
         }
 
         $passThroughTypes = [

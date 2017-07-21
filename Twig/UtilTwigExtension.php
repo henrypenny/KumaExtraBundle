@@ -33,6 +33,7 @@ class UtilTwigExtension extends BaseTwigExtension
             'obfuscateEmail' => new \Twig_Function_Method($this, 'obfuscateEmail', ['is_safe' => array('html')]),
             'googleMapLink' => new \Twig_Function_Method($this, 'googleMapLink', ['is_safe' => array('html')]),
             'telLink' => new \Twig_Function_Method($this, 'telLink', ['is_safe' => array('html')]),
+            'global' => new \Twig_Function_Method($this, 'getGlobal'),
         ];
     }
 
@@ -83,5 +84,19 @@ class UtilTwigExtension extends BaseTwigExtension
         }
 
         return $result;
+    }
+
+    public function getGlobal($name, $richText = false, $optional = false)
+    {
+        $global = $this->container->get('doctrine.orm.default_entity_manager')->getRepository('HmpKumaExtraBundle:GlobalValue')->findOneBy(['name' => $name]);
+        if(!$global) {
+            if($optional) {
+                return '';
+            }
+            else {
+                throw new \Exception('Missing Global Value: ' . $name);
+            }
+        }
+        return $richText?$global->getRichText():$global->getPlainText();
     }
 }
