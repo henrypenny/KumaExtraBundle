@@ -46,7 +46,7 @@ class GlobalValueMenuAdaptor implements MenuAdaptorInterface
         if (!is_null($parent) &&'KunstmaanAdminBundle_settings' == $parent->getRoute()) {
             $menuItem = new MenuItem($menu);
             $menuItem
-                ->setRoute('hmp_kuma_admin_globalvalue')
+                ->setRoute('hmpkumaextrabundle_admin_globalvalue')
                 ->setLabel('Global Values')
                 ->setUniqueId('GlobalValues')
                 ->setParent($parent);
