@@ -327,25 +327,35 @@ class ContentTwigExtension extends BaseTwigExtension
     }
 
     /**
-     * @param Media $media
+     * @param $media
      * @param null $width
      * @param null $height
-     * @param string $mode
-     * @param bool $allow_upscale
-     * @return string
-     * @throws \Exception
+     * @param array $opts
      */
-    public function img($media, $width = null, $height = null, $mode = 'outbound', $allow_upscale = false)
+    public function img($media, $width = null, $height = null, $opts = [])
     {
+        $defaultOptions = [
+            'mode' => 'outbound',
+            'allow_upscale' => false,
+            'double_size' => false,
+        ];
+
+        $opts = array_merge($defaultOptions, $opts);
+
+        $mode = $opts['mode'];
+        $allow_upscale = $opts['allow_upscale'];
+        $double_size = $opts['double_size'];
+
+        if($double_size) {
+            $width *= 2;
+            $height *= 2;
+        }
+
         if($media === null) {
             return sprintf("//unsplash.it/%s/%s", $width, $height);
         }
 
-        $passThroughTypes = [
-            'image/gif'
-        ];
-
-        if($this->isMediaOfType($media, ['image/gif', 'image/svg+xml'])) {
+        if($this->isMediaOfType($media, ['image/gif', 'image/svg+xml', 'image/png'])) {
             return $media->getUrl();
         }
 
@@ -377,7 +387,12 @@ class ContentTwigExtension extends BaseTwigExtension
             $thumbnail = array_merge($thumbnail, compact('allow_upscale'));
         }
 
-        return $this->cacheManager->getBrowserPath($path, 'img', compact('thumbnail'));
+        if($double_size) {
+            return $this->cacheManager->getBrowserPath($path, 'img_low', compact('thumbnail'));
+        }
+        else {
+            return $this->cacheManager->getBrowserPath($path, 'img', compact('thumbnail'));
+        }
     }
 
     public function nl2p($content)
