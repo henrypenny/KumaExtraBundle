@@ -26,5 +26,6 @@ class HmpKumaExtraExtension extends Extension
 	    $loader->load('services.yml');
         $loader->load('form-types.yml');
         $loader->load('twig.yml');
+        $loader->load('menu.yml');
     }
 }
