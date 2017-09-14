@@ -355,7 +355,7 @@ class ContentTwigExtension extends BaseTwigExtension
             return sprintf("//unsplash.it/%s/%s", $width, $height);
         }
 
-        if($this->isMediaOfType($media, ['image/gif', 'image/svg+xml', 'image/png'])) {
+        if($this->isMediaOfType($media, ['image/gif', 'image/svg+xml'])) {
             return $media->getUrl();
         }
 
